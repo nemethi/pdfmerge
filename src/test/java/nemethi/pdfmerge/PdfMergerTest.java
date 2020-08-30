@@ -23,12 +23,10 @@ import java.util.List;
 import static org.assertj.core.util.Lists.list;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PdfMergerTest {
@@ -63,7 +61,6 @@ public class PdfMergerTest {
 
     @Before
     public void setUp() {
-        initMocks(this);
         pdfMerger = new PdfMerger(mergerUtility);
         pdfMerger.setConverter(converter);
         pdfMerger.setFileChecker(fileChecker);
@@ -99,7 +96,7 @@ public class PdfMergerTest {
 
         // when + then
         thrown.expect(FileAlreadyExistsException.class);
-        thrown.expectMessage(is("The output file already exists"));
+        thrown.expectMessage(is("The output file already exists."));
         pdfMerger.merge(inputPaths, outputPath);
 
         // then

@@ -28,7 +28,7 @@ public class PdfMerger {
 
     public void merge(List<Path> inputPaths, Path outputPath) throws IOException {
         if (fileChecker.exists(outputPath)) {
-            throw new FileAlreadyExistsException("The output file already exists");
+            throw new FileAlreadyExistsException("The output file already exists.");
         }
         doMerge(inputPaths, outputPath);
     }

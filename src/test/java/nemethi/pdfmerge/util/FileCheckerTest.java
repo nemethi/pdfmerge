@@ -1,6 +1,5 @@
 package nemethi.pdfmerge.util;
 
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,6 +13,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileCheckerTest {
 
+    private static final Path NOT_EXISTING_PATH = Paths.get("invalid-path");
+
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
 
@@ -25,20 +26,53 @@ public class FileCheckerTest {
     }
 
     @Test
-    public void returnsTrueWhenFileExists() throws IOException {
+    public void existsReturnsTrueWhenPathExists() throws IOException {
         // given
-        Path validFile = temp.newFile().toPath();
+        Path existingPath = temp.newFile().toPath();
 
         // when + then
-        assertThat(fileChecker.exists(validFile)).isTrue();
+        assertThat(fileChecker.exists(existingPath)).isTrue();
     }
 
     @Test
-    public void returnsFalseWhenFileDoesNotExist() {
+    public void existsReturnsFalseWhenPathDoesNotExist() {
+        assertThat(fileChecker.exists(NOT_EXISTING_PATH)).isFalse();
+    }
+
+    @Test
+    public void notExistsReturnsTrueWhenPathDoesNotExist() {
+        assertThat(fileChecker.notExists(NOT_EXISTING_PATH)).isTrue();
+    }
+
+    @Test
+    public void notExistsReturnsFalseWhenPathExists() throws IOException {
         // given
-        Path invalidFile = Paths.get("invalid-file");
+        Path existingPath = temp.newFile().toPath();
 
         // when + then
-        assertThat(fileChecker.exists(invalidFile)).isFalse();
+        assertThat(fileChecker.notExists(existingPath)).isFalse();
+    }
+
+    @Test
+    public void isDirectoryReturnsFalseWhenPathDoesNotExist() {
+        assertThat(fileChecker.isDirectory(NOT_EXISTING_PATH)).isFalse();
+    }
+
+    @Test
+    public void isDirectoryReturnsFalseWhenPathIsNotADirectory() throws IOException {
+        // given
+        Path existingPath = temp.newFile().toPath();
+
+        // when + then
+        assertThat(fileChecker.isDirectory(existingPath)).isFalse();
+    }
+
+    @Test
+    public void isDirectoryReturnsTrueWhenPathIsADirectory() throws IOException {
+        // given
+        Path existingPath = temp.newFolder().toPath();
+
+        // when + then
+        assertThat(fileChecker.isDirectory(existingPath)).isTrue();
     }
 }
