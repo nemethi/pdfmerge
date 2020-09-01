@@ -6,9 +6,7 @@ import nemethi.pdfmerge.util.PathToStreamConverter;
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -20,8 +18,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Path;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.util.Lists.list;
-import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -30,6 +29,8 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PdfMergerTest {
+
+    private static final String ERROR_MESSAGE = "The output file already exists.";
 
     @Mock
     private PDFMergerUtility mergerUtility;
@@ -54,8 +55,6 @@ public class PdfMergerTest {
 
     private PdfMerger pdfMerger;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
     private List<Path> inputPaths;
     private List<InputStream> inputStreams;
 
@@ -94,12 +93,13 @@ public class PdfMergerTest {
         // given
         when(fileChecker.exists(outputPath)).thenReturn(true);
 
-        // when + then
-        thrown.expect(FileAlreadyExistsException.class);
-        thrown.expectMessage(is("The output file already exists."));
-        pdfMerger.merge(inputPaths, outputPath);
+        // when
+        Throwable thrown = catchThrowable(() -> pdfMerger.merge(inputPaths, outputPath));
 
         // then
+        assertThat(thrown)
+                .isInstanceOf(FileAlreadyExistsException.class)
+                .hasMessage(ERROR_MESSAGE);
         verify(fileChecker).exists(outputPath);
     }
 

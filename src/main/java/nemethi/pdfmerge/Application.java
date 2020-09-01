@@ -1,6 +1,7 @@
 package nemethi.pdfmerge;
 
 import nemethi.pdfmerge.cli.ExceptionHandler;
+import nemethi.pdfmerge.cli.VersionProvider;
 import nemethi.pdfmerge.util.FileChecker;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import picocli.CommandLine;
@@ -15,7 +16,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@Command(name = "pdfmerge", mixinStandardHelpOptions = true)
+@Command(name = "pdfmerge", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class Application implements Callable<Integer> {
 
     private final PdfMerger pdfMerger;

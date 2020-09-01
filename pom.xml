@@ -81,6 +81,7 @@
               <archive>
                 <manifest>
                   <mainClass>nemethi.pdfmerge.Application</mainClass>
+                  <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                 </manifest>
               </archive>
               <descriptorRefs>

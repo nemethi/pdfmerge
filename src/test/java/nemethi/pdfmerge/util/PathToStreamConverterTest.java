@@ -3,7 +3,6 @@ package nemethi.pdfmerge.util;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.FileInputStream;
@@ -15,6 +14,7 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.util.Lists.emptyList;
 import static org.assertj.core.util.Lists.list;
 
@@ -24,8 +24,6 @@ public class PathToStreamConverterTest {
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     private PathToStreamConverter converter;
 
@@ -56,8 +54,10 @@ public class PathToStreamConverterTest {
         // given
         List<Path> paths = list(temp.newFile().toPath(), Paths.get(EMPTY_PATH_NAME));
 
-        // when + then
-        thrown.expect(FileNotFoundException.class);
-        converter.convertPathsToStreams(paths);
+        // when
+        Throwable thrown = catchThrowable(() -> converter.convertPathsToStreams(paths));
+
+        // then
+        assertThat(thrown).isInstanceOf(FileNotFoundException.class);
     }
 }
