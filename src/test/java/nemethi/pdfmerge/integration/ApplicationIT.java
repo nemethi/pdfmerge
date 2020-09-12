@@ -52,14 +52,14 @@ public class ApplicationIT {
     }
 
     @AfterClass
-    public static void afterClass() throws IOException {
+    public static void afterClass() {
+        testTempDir.toFile().deleteOnExit();
         File[] files = testTempDir.toFile().listFiles();
         if (files != null) {
             for (File file : files) {
-                Files.delete(file.toPath());
+                file.deleteOnExit();
             }
         }
-        Files.delete(testTempDir);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class ApplicationIT {
 
         // when + then
         exit.expectSystemExitWithStatus(1);
-        exit.checkAssertionAfterwards(() -> assertThat(stderr.getLog()).isEqualTo(OUTPUT_FILE_EXISTS_ERROR_MESSAGE));
+        exit.checkAssertionAfterwards(assertThatErrorMessageIsPrintedToStdErr());
         Application.main(args("-o", outputFile.toString(), pdf1.toString(), pdf2.toString()));
     }
 
@@ -123,6 +123,10 @@ public class ApplicationIT {
 
     private Assertion assertThatPdfsAreMerged(Path outputFile, Path... inputFiles) {
         return () -> assertThat(contentOf(outputFile)).isEqualTo(contentOf(inputFiles));
+    }
+
+    private Assertion assertThatErrorMessageIsPrintedToStdErr() {
+        return () -> assertThat(stderr.getLogWithNormalizedLineSeparator()).isEqualTo(OUTPUT_FILE_EXISTS_ERROR_MESSAGE);
     }
 
     private String contentOf(Path... inputFiles) throws IOException {
