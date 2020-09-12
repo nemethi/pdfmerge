@@ -29,6 +29,7 @@ public class CommandLineIT {
     private static final String INVALID_INPUT_FILE_ERROR_MESSAGE = "pdfmerge: Invalid path: FILE must point to a file.\n";
     private static final String NOT_EXISTING_FILE_ERROR_MESSAGE_FORMAT = "pdfmerge: Invalid path: %s does not exist.%n";
     private static final String NOT_ENOUGH_INPUT_FILES_ERROR_MESSAGE_FORMAT = "pdfmerge: positional parameter at index 0..* (FILE) requires at least 2 values, but only 1 were specified: [%s]%n";
+    private static final String OUTPUT_FILE_ALREADY_EXISTS_ERROR_MESSAGE = "pdfmerge: The output file already exists. Use -f or --force to overwrite it.\n";
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
@@ -153,7 +154,7 @@ public class CommandLineIT {
 
         // then
         assertThat(exitCode).isOne();
-        assertThat(stderr).hasToString("pdfmerge: The output file already exists. Use -f or --force to overwrite it.\n");
+        assertThat(stderr).hasToString(OUTPUT_FILE_ALREADY_EXISTS_ERROR_MESSAGE);
         assertThat(stdout.toString()).isEmpty();
     }
 
