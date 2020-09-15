@@ -31,6 +31,8 @@ public class CommandLineIT {
     private static final String NOT_EXISTING_FILE_ERROR_MESSAGE_FORMAT = "pdfmerge: Invalid path: %s does not exist.%n";
     private static final String NOT_ENOUGH_INPUT_FILES_ERROR_MESSAGE_FORMAT = "pdfmerge: positional parameter at index 0..* (FILE) requires at least 2 values, but only 1 were specified: [%s]%n";
     private static final String OUTPUT_FILE_ALREADY_EXISTS_ERROR_MESSAGE = "pdfmerge: The output file already exists. Use -f or --force to overwrite it." + EOL;
+    private static final String DESCRIPTION = "Merge multiple PDF FILEs into OUTFILE.";
+    private static final String USAGE = "Usage: pdfmerge [-fhV] -o=OUTFILE FILE FILE...";
 
     @Rule
     public TemporaryFolder temp = new TemporaryFolder();
@@ -180,8 +182,8 @@ public class CommandLineIT {
     }
 
     private void assertHelpMessage() {
-        assertThat(stdout.toString()).contains("Usage: pdfmerge [-fhV] -o=OUTFILE FILE FILE...",
-                "-f, --force", "-h, --help", "-o, --output=OUTFILE", "-V, --version");
+        assertThat(stdout.toString()).contains(USAGE, DESCRIPTION, "-f, --force", "-h, --help", "-o, --output=OUTFILE",
+                "-V, --version");
     }
 
 }

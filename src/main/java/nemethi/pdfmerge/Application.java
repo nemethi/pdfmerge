@@ -16,7 +16,8 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@Command(name = "pdfmerge", mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
+@Command(name = "pdfmerge", description = "Merge multiple PDF FILEs into OUTFILE.%n",
+        mixinStandardHelpOptions = true, versionProvider = VersionProvider.class)
 public class Application implements Callable<Integer> {
 
     private final PdfMerger pdfMerger;
