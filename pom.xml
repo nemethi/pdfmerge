@@ -53,6 +53,14 @@
   </dependencies>
 
   <build>
+    <resources>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <includes>
+          <include>LICENSE</include>
+        </includes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -128,6 +136,24 @@
             <goals>
               <goal>report-integration</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <version>2.0.0</version>
+        <executions>
+          <execution>
+            <id>generate-third-party-list</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>add-third-party</goal>
+            </goals>
+            <configuration>
+              <artifactFiltersUrl>file://${project.basedir}/artifact-filter.txt</artifactFiltersUrl>
+              <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
+            </configuration>
           </execution>
         </executions>
       </plugin>
