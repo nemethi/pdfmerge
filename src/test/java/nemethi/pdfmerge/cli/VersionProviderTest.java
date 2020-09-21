@@ -9,7 +9,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -38,7 +37,7 @@ public class VersionProviderTest {
     private static final String NO_VERSION_ERROR_MESSAGE = "Could not find version information.";
 
     @Mock
-    private URLClassLoader classLoader;
+    private ClassLoader classLoader;
     @Mock
     private URL goodUrl;
     @Mock
@@ -51,6 +50,7 @@ public class VersionProviderTest {
     private Attributes goodAttributes;
     @Mock
     private Attributes badAttributes;
+
     private Enumeration<URL> urls;
 
     @Spy
@@ -65,7 +65,7 @@ public class VersionProviderTest {
     public void returnsVersionFromManifestFile() throws Exception {
         // given
         doReturn(classLoader).when(versionProvider).getClassLoader();
-        when(classLoader.findResources(MANIFEST_FILE)).thenReturn(urls);
+        when(classLoader.getResources(MANIFEST_FILE)).thenReturn(urls);
         doReturn(badManifest).when(versionProvider).openManifest(badUrl);
         when(badManifest.getMainAttributes()).thenReturn(badAttributes);
         when(badAttributes.getValue(IMPLEMENTATION_TITLE)).thenReturn(TEST);
@@ -80,7 +80,7 @@ public class VersionProviderTest {
         // then
         assertThat(version).isEqualTo(new String[]{VERSION});
         verify(versionProvider).getClassLoader();
-        verify(classLoader).findResources(MANIFEST_FILE);
+        verify(classLoader).getResources(MANIFEST_FILE);
         verify(versionProvider).openManifest(badUrl);
         verify(badManifest).getMainAttributes();
         verify(badAttributes).getValue(IMPLEMENTATION_TITLE);
@@ -96,7 +96,7 @@ public class VersionProviderTest {
     public void throwsExceptionIfApplicationManifestContainsNoVersion() throws IOException {
         // given
         doReturn(classLoader).when(versionProvider).getClassLoader();
-        when(classLoader.findResources(MANIFEST_FILE)).thenReturn(enumeration(list(badUrl, badUrl)));
+        when(classLoader.getResources(MANIFEST_FILE)).thenReturn(enumeration(list(badUrl, badUrl)));
         doReturn(badManifest).when(versionProvider).openManifest(badUrl);
         when(badManifest.getMainAttributes()).thenReturn(badAttributes);
         when(badAttributes.getValue(IMPLEMENTATION_TITLE)).thenReturn(TEST).thenReturn(APPLICATION_NAME);
@@ -108,7 +108,7 @@ public class VersionProviderTest {
         // then
         assertThat(thrown).isInstanceOf(IOException.class).hasMessage(NO_VERSION_ERROR_MESSAGE);
         verify(versionProvider).getClassLoader();
-        verify(classLoader).findResources(MANIFEST_FILE);
+        verify(classLoader).getResources(MANIFEST_FILE);
         verify(versionProvider, times(2)).openManifest(badUrl);
         verify(badManifest, times(2)).getMainAttributes();
         verify(badAttributes, times(2)).getValue(IMPLEMENTATION_TITLE);
@@ -121,7 +121,7 @@ public class VersionProviderTest {
     public void throwsExceptionIfNoVersionIsFound() throws IOException {
         // given
         doReturn(classLoader).when(versionProvider).getClassLoader();
-        when(classLoader.findResources(MANIFEST_FILE)).thenReturn(enumeration(list(badUrl, badUrl)));
+        when(classLoader.getResources(MANIFEST_FILE)).thenReturn(enumeration(list(badUrl, badUrl)));
         doReturn(badManifest).when(versionProvider).openManifest(badUrl);
         when(badManifest.getMainAttributes()).thenReturn(badAttributes);
         when(badAttributes.getValue(IMPLEMENTATION_TITLE)).thenReturn(TEST);
@@ -132,7 +132,7 @@ public class VersionProviderTest {
         // then
         assertThat(thrown).isInstanceOf(IOException.class).hasMessage(NO_VERSION_ERROR_MESSAGE);
         verify(versionProvider).getClassLoader();
-        verify(classLoader).findResources(MANIFEST_FILE);
+        verify(classLoader).getResources(MANIFEST_FILE);
         verify(versionProvider, times(2)).openManifest(badUrl);
         verify(badManifest, times(2)).getMainAttributes();
         verify(badAttributes, times(2)).getValue(IMPLEMENTATION_TITLE);
@@ -144,7 +144,7 @@ public class VersionProviderTest {
     public void getAllManifestUrlsExceptionIsTranslated() throws IOException {
         // given
         doReturn(classLoader).when(versionProvider).getClassLoader();
-        when(classLoader.findResources(MANIFEST_FILE)).thenThrow(IOException.class);
+        when(classLoader.getResources(MANIFEST_FILE)).thenThrow(IOException.class);
 
         // when
         Throwable thrown = catchThrowable(() -> versionProvider.getVersion());
@@ -152,7 +152,7 @@ public class VersionProviderTest {
         // then
         assertThat(thrown).isInstanceOf(IOException.class).hasMessage(ERROR_OCCURRED_MESSAGE);
         verify(versionProvider).getClassLoader();
-        verify(classLoader).findResources(MANIFEST_FILE);
+        verify(classLoader).getResources(MANIFEST_FILE);
         verifyNoMoreInteractions(classLoader);
     }
 
@@ -160,7 +160,7 @@ public class VersionProviderTest {
     public void openManifestExceptionIsTranslated() throws IOException {
         // given
         doReturn(classLoader).when(versionProvider).getClassLoader();
-        when(classLoader.findResources(MANIFEST_FILE)).thenReturn(urls);
+        when(classLoader.getResources(MANIFEST_FILE)).thenReturn(urls);
         when(badUrl.openStream()).thenThrow(IOException.class);
 
         // when
@@ -169,7 +169,7 @@ public class VersionProviderTest {
         // then
         assertThat(thrown).isInstanceOf(IOException.class).hasMessage(ERROR_OCCURRED_MESSAGE);
         verify(versionProvider).getClassLoader();
-        verify(classLoader).findResources(MANIFEST_FILE);
+        verify(classLoader).getResources(MANIFEST_FILE);
         verify(badUrl).openStream();
         verifyNoMoreInteractions(classLoader, badUrl);
         verifyNoInteractions(goodUrl);

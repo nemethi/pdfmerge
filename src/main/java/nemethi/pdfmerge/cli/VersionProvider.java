@@ -4,7 +4,6 @@ import picocli.CommandLine.IVersionProvider;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.concurrent.Callable;
 import java.util.jar.Attributes;
@@ -34,12 +33,12 @@ public class VersionProvider implements IVersionProvider {
         return new String[]{version};
     }
 
-    URLClassLoader getClassLoader() throws IOException {
-        return valueWithErrorTranslation(() -> (URLClassLoader) getClass().getClassLoader());
+    ClassLoader getClassLoader() throws IOException {
+        return valueWithErrorTranslation(() -> getClass().getClassLoader());
     }
 
-    private Enumeration<URL> getAllManifestUrls(URLClassLoader classLoader) throws IOException {
-        return valueWithErrorTranslation(() -> classLoader.findResources(MANIFEST_FILE));
+    private Enumeration<URL> getAllManifestUrls(ClassLoader classLoader) throws IOException {
+        return valueWithErrorTranslation(() -> classLoader.getResources(MANIFEST_FILE));
     }
 
     Manifest openManifest(URL url) throws IOException {
