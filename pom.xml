@@ -151,7 +151,7 @@
               <goal>add-third-party</goal>
             </goals>
             <configuration>
-              <artifactFiltersUrl>file://${project.basedir}/artifact-filter.txt</artifactFiltersUrl>
+              <excludedScopes>test</excludedScopes>
               <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
             </configuration>
           </execution>
