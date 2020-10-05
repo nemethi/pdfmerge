@@ -44,9 +44,10 @@ public class ApplicationIT {
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        testTempDir = Files.createTempDirectory(Paths.get(System.getProperty("java.io.tmpdir")), TEST_FILE_NAME_PREFIX);
-        pdf1 = Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
-        pdf2 = Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
+        String operatingSystemTempDir = System.getProperty("java.io.tmpdir");
+        testTempDir = Files.createTempDirectory(Paths.get(operatingSystemTempDir), TEST_FILE_NAME_PREFIX);
+        pdf1 = newTempFilePath();
+        pdf2 = newTempFilePath();
         createPdf(pdf1.toFile(), FIRST_PAGE_CONTENT);
         createPdf(pdf2.toFile(), SECOND_PAGE_CONTENT, THIRD_PAGE_CONTENT);
     }
@@ -65,7 +66,7 @@ public class ApplicationIT {
     @Test
     public void mergeTwoPdfs() {
         // given
-        Path outputFile = Paths.get(testTempDir.toString(), randomFilename());
+        Path outputFile = newOutputFilePath();
 
         // when + then
         exit.expectSystemExitWithStatus(0);
@@ -76,7 +77,7 @@ public class ApplicationIT {
     @Test
     public void mergeSameInputPdfMultipleTimes() {
         // given
-        Path outputFile = Paths.get(testTempDir.toString(), randomFilename());
+        Path outputFile = newOutputFilePath();
 
         // when + then
         exit.expectSystemExitWithStatus(0);
@@ -87,7 +88,7 @@ public class ApplicationIT {
     @Test
     public void mergeFailsIfOutputFileExists() throws IOException {
         // given
-        Path outputFile = Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
+        Path outputFile = newTempFilePath();
 
         // when + then
         exit.expectSystemExitWithStatus(1);
@@ -98,7 +99,7 @@ public class ApplicationIT {
     @Test
     public void mergeWithForceShortOption() throws IOException {
         // given
-        Path outputFile = Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
+        Path outputFile = newTempFilePath();
 
         // when + then
         exit.expectSystemExitWithStatus(0);
@@ -109,7 +110,7 @@ public class ApplicationIT {
     @Test
     public void mergeWithForceLongOption() throws IOException {
         // given
-        Path outputFile = Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
+        Path outputFile = newTempFilePath();
 
         // when + then
         exit.expectSystemExitWithStatus(0);
@@ -117,16 +118,52 @@ public class ApplicationIT {
         Application.main(args("--force", "-o", outputFile.toString(), pdf1.toString(), pdf2.toString()));
     }
 
+    @Test
+    public void mergeFailsWithValidFileAndWithEmptyFile() throws IOException {
+        // given
+        Path emptyFile = newTempFilePath();
+        Path outputFile = newOutputFilePath();
+
+        // when + then
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(assertThatErrorStreamIsNotBlank());
+        Application.main(args("-o", outputFile.toString(), pdf1.toString(), emptyFile.toString()));
+    }
+
+    @Test
+    public void outputFileCannotBeInputFile() throws IOException {
+        // given
+        Path outputFile = newTempFilePath();
+        createPdf(outputFile.toFile(), FIRST_PAGE_CONTENT);
+
+        // when + then
+        exit.expectSystemExitWithStatus(1);
+        exit.checkAssertionAfterwards(assertThatErrorStreamIsNotBlank());
+        Application.main(args("-f", "-o", outputFile.toString(), pdf1.toString(), outputFile.toString()));
+    }
+
+    private static Path newTempFilePath() throws IOException {
+        return Files.createTempFile(testTempDir, TEST_FILE_NAME_PREFIX, TEST_FILE_NAME_SUFFIX);
+    }
+
+    private Path newOutputFilePath() {
+        return Paths.get(testTempDir.toString(), randomFilename());
+    }
+
     private String[] args(String... args) {
         return args;
     }
 
-    private Assertion assertThatPdfsAreMerged(Path outputFile, Path... inputFiles) {
-        return () -> assertThat(contentOf(outputFile)).isEqualTo(contentOf(inputFiles));
-    }
-
     private Assertion assertThatErrorMessageIsPrintedToStdErr() {
         return () -> assertThat(stderr.getLogWithNormalizedLineSeparator()).isEqualTo(OUTPUT_FILE_EXISTS_ERROR_MESSAGE);
+    }
+
+    private Assertion assertThatErrorStreamIsNotBlank() {
+        return () -> assertThat(stderr.getLogWithNormalizedLineSeparator()).isNotBlank();
+    }
+
+    private Assertion assertThatPdfsAreMerged(Path outputFile, Path... inputFiles) {
+        return () -> assertThat(contentOf(outputFile)).isEqualTo(contentOf(inputFiles));
     }
 
     private String contentOf(Path... inputFiles) throws IOException {
