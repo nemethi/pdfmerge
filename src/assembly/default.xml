@@ -12,6 +12,7 @@
       <directory>${project.basedir}</directory>
       <outputDirectory/>
       <includes>
+        <include>README.md</include>
         <include>LICENSE</include>
       </includes>
     </fileSet>
