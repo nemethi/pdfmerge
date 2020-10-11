@@ -1,4 +1,4 @@
-#pdfmerge
+# pdfmerge
 Merge multiple PDFs into one.
 
 ## Installation
